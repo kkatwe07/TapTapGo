@@ -8,7 +8,6 @@ public class PlatformSpawner : MonoBehaviour
     private Vector3 _lastPosition;
     private Vector3 _newPosition;
 
-    public bool StopPlatformSpawn { get; set; } = false;
 
     private void Start()
     {
@@ -18,7 +17,7 @@ public class PlatformSpawner : MonoBehaviour
 
     private IEnumerator SpawnPlatforms()
     {
-        while (!StopPlatformSpawn)
+        while (true)
         {
             GeneratePosition();
 

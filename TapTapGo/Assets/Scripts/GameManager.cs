@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-
     public static GameManager Instance;
 
     public bool gameStarted = false;
@@ -14,8 +13,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject platformSpawner;
     [SerializeField] private GameObject gamePlayUI;
     [SerializeField] private GameObject menuUI;
-
-    [SerializeField] private AudioSource bgMusic;
 
     [SerializeField] private Text highScoreText;
     [SerializeField] private Text scoreText;
@@ -30,20 +27,25 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
         }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
     {
         _highScore = PlayerPrefs.GetInt("HighScore");
-
         highScoreText.text = "Best Score : " + _highScore;
+
+        
     }
 
     private void Update()
     {
-        if (!gameStarted)
+        if(!gameStarted)
         {
-            if (Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0))
             {
                 GameStart();
             }
@@ -53,7 +55,6 @@ public class GameManager : MonoBehaviour
     private void GameStart()
     {
         _gameLost = false;
-        bgMusic.Play();
         gameStarted = true;
         platformSpawner.SetActive(true);
         menuUI.SetActive(false);
@@ -63,25 +64,23 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        var stopSpawner = platformSpawner.GetComponent<PlatformSpawner>();
-        stopSpawner.StopPlatformSpawn = true;
-        _gameLost = true;
         platformSpawner.SetActive(false);
+        _gameLost = true;
         StartCoroutine(Co_UpdateScore());
         SaveHighScore();
         StartCoroutine(Co_ReloadLevel());
-        //DontDestroyOnLoad( BgMusic);
     }
 
-    private static IEnumerator Co_ReloadLevel()
+    private IEnumerator Co_ReloadLevel()
     {
         yield return new WaitForSeconds(1f);
+        gameStarted = false;
         SceneManager.LoadScene("Game");
     }
 
     private IEnumerator Co_UpdateScore()
     {
-        while (!_gameLost)
+        while(!_gameLost)
         {
             yield return new WaitForSeconds(1f);
             _score++;
@@ -91,14 +90,7 @@ public class GameManager : MonoBehaviour
 
     private void SaveHighScore()
     {
-        if (PlayerPrefs.HasKey("HighScore"))
-        {
-            if(_score > PlayerPrefs.GetInt("HighScore"))
-            {
-                PlayerPrefs.SetInt("HighScore", _score);
-            }
-        }
-        else
+        if(_score > PlayerPrefs.GetInt("HighScore", 0))
         {
             PlayerPrefs.SetInt("HighScore", _score);
         }
